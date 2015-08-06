@@ -1,3 +1,32 @@
 {
-  "extends": "eslint-config-airbnb"
+  "extends": "eslint-config-airbnb",
+  "rules": {
+    "react/sort-comp": [2, { // temporary until https://github.com/airbnb/javascript/pull/457 is merged
+      "order": [
+        "displayName",
+        "propTypes",
+        "contextTypes",
+        "childContextTypes",
+        "mixins",
+        "statics",
+        "defaultProps",
+        "state",
+        "constructor",
+        "getDefaultProps",
+        "getInitialState",
+        "getChildContext",
+        "componentWillMount",
+        "componentDidMount",
+        "componentWillReceiveProps",
+        "shouldComponentUpdate",
+        "componentWillUpdate",
+        "componentDidUpdate",
+        "componentWillUnmount",
+        "/^on.+$/",
+        "/^get.+$/",
+        "/^render.+$/",
+        "render"
+      ]
+    }]
+  }
 }

@@ -1,16 +1,42 @@
 {
-  "name": "node-base",
+  "name": "react-base",
   "version": "0.0.1",
-  "description": "Modern Node.js base",
+  "description": "Modern React base",
   "main": "index.js",
+  "scripts": {
+    "start": "NODE_ENV=production node index",
+    "start-dev": "NODE_ENV=development nodemon index",
+    "watch-client": "nodemon -w webpack.config.js -w webpack-dev-server.js webpack-dev-server",
+    "dev": "concurrent --kill-others \"npm run watch-client\" \"npm run start-dev\"",
+    "build": "scripts/build",
+    "lint": "scripts/lint"
+  },
   "author": "",
   "dependencies": {
-    "babel": "^5.8.20"
+    "babel": "^5.8.20",
+    "babel-runtime": "^5.8.20",
+    "react": "^0.13.3"
   },
   "devDependencies": {
+    "babel-core": "^5.8.21",
     "babel-eslint": "^4.0.5",
+    "babel-loader": "^5.3.2",
+    "concurrently": "^0.1.1",
+    "css-loader": "^0.15.6",
+    "cssnext-loader": "^1.0.1",
     "eslint": "^1.0.0",
     "eslint-config-airbnb": "0.0.7",
-    "eslint-plugin-react": "^3.1.0"
+    "eslint-plugin-react": "^3.1.0",
+    "extract-text-webpack-plugin": "^0.8.2",
+    "file-loader": "^0.8.4",
+    "imports-loader": "^0.6.4",
+    "json-loader": "^0.5.2",
+    "lodash.merge": "^3.3.2",
+    "nodemon": "^1.4.0",
+    "react-hot-loader": "^1.2.8",
+    "style-loader": "^0.12.3",
+    "url-loader": "^0.5.6",
+    "webpack": "^1.10.5",
+    "webpack-dev-server": "^1.10.1"
   }
 }
