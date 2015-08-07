@@ -1,13 +1,11 @@
 import React from 'react';
 import BrowserHistory from 'react-router/lib/BrowserHistory';
-import Location from 'react-router/lib/Location';
-import { App, routes, runRouter } from './app';
+import { route } from './app';
 
 const history = new BrowserHistory();
 const { pathname, search } = document.location;
-const location = new Location(pathname, search);
 
-runRouter(routes, App, location, history)
+route(pathname, search, history)
   .then(({ component }) => {
     React.render(component, document.getElementById('body'));
   })

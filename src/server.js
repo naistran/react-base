@@ -1,25 +1,19 @@
 import koa from 'koa';
-import React from 'react';
-import Location from 'react-router/lib/Location';
-import { App, Html, routes, runRouter } from './app';
+import { route, renderHTML } from './app';
 import pkg from '../package';
 
 const PORT = 3000;
 const app = koa();
 
 app.use(function* render() {
-  const location = new Location(this.path, this.search);
-  const {
-    component,
-    redirectPath,
-  } = yield runRouter(routes, App, location);
+  const { path, search } = this;
+  const { component, redirectPath } = yield route(path, search);
 
   if (redirectPath) {
     return this.redirect(redirectPath);
   }
 
-  const html = <Html component={component}/>;
-  this.body = `<!DOCTYPE html>${React.renderToString(html)}`;
+  this.body = renderHTML(component);
 });
 
 app.listen(PORT, err => {
