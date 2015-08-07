@@ -1,21 +1,31 @@
-import http from 'http';
+import koa from 'koa';
 import React from 'react';
-import Html from 'components/Html';
-import App from 'components/App';
+import Location from 'react-router/lib/Location';
+import { App, Html, routes, runRouter } from './app';
 import pkg from '../package';
 
 const PORT = 3000;
+const app = koa();
 
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/html' });
-  const html = React.renderToString(<Html component={<App/>}/>);
-  res.end(`<!DOCTYPE html>${html}`);
+app.use(function* render() {
+  const location = new Location(this.path, this.search);
+  const {
+    component,
+    redirectPath,
+  } = yield runRouter(routes, App, location);
+
+  if (redirectPath) {
+    return this.redirect(redirectPath);
+  }
+
+  const html = <Html component={component}/>;
+  this.body = `<!DOCTYPE html>${React.renderToString(html)}`;
 });
 
-server.listen(PORT, err => {
+app.listen(PORT, err => {
   /* eslint no-console: 0 */
   if (err) console.error(err);
   console.log('%s@%s listening on %d', pkg.name, pkg.version, PORT);
 });
 
-export default server;
+export default app;

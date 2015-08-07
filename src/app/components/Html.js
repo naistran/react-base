@@ -6,7 +6,7 @@ import React, {
 
 class Html extends Component {
   static propTypes = {
-    component: PropTypes.object,
+    component: PropTypes.element,
   }
 
   render() {
@@ -17,11 +17,11 @@ class Html extends Component {
       <head>
         <meta charSet="UTF-8"/>
         <title>{title}</title>
-        {/* <link rel="stylesheet" href="build/index.css"/> */}
+        {/* <link rel="stylesheet" href="/build/index.css"/> */}
       </head>
       <body>
         <div id="body" dangerouslySetInnerHTML={{ __html: renderToString(component) }}/>
-        <script src="build/index.js"/>
+        <script src="/build/index.js"/>
       </body>
       </html>
     );

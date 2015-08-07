@@ -1,6 +1,7 @@
 {
   "extends": "eslint-config-airbnb",
   "rules": {
+    "no-undef": 2,
     "react/sort-comp": [2, {
       "order": [
         "displayName",
