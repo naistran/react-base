@@ -1,13 +1,14 @@
 import koa from 'koa';
-import { route, renderHTML } from './app';
-import pkg from '../package';
+import renderHTML from './renderHTML';
+import runRouter from '../runRouter';
+import pkg from '../../package';
 
 const PORT = 3000;
 const app = koa();
 
 app.use(function* render() {
   const { path, search } = this;
-  const { component, redirectPath } = yield route(path, search);
+  const { component, redirectPath } = yield runRouter(path, search);
 
   if (redirectPath) {
     return this.redirect(redirectPath);

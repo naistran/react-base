@@ -1,7 +1,11 @@
 import React, { PropTypes } from 'react';
 import { Router } from 'react-router';
+import { Provider } from 'react-redux';
+import createStore from './createStore';
 
-class App extends React.Component {
+const store = createStore();
+
+class AppContainer extends React.Component {
   static propTypes = {
     routes: PropTypes.object.isRequired,
     routerState: PropTypes.object.isRequired,
@@ -14,9 +18,11 @@ class App extends React.Component {
   render() {
     const { routes, routerState } = this.props;
     return (
-      <Router {...routerState} children={routes}/>
+      <Provider store={store}>
+        {() => <Router {...routerState} children={routes}/>}
+      </Provider>
     );
   }
 }
 
-export default App;
+export default AppContainer;

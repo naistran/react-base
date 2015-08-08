@@ -1,11 +1,11 @@
 import React from 'react';
 import BrowserHistory from 'react-router/lib/BrowserHistory';
-import { route } from './app';
+import runRouter from './runRouter';
 
 const history = new BrowserHistory();
 const { pathname, search } = document.location;
 
-route(pathname, search, history)
+runRouter(pathname, search, history)
   .then(({ component }) => {
     React.render(component, document.getElementById('body'));
   })

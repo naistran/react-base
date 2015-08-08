@@ -5,7 +5,9 @@ const merge = require('lodash.merge');
 const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-const DEBUG = process.env.NODE_ENV !== 'production';
+const NODE_ENV = process.env.NODE_ENV;
+const DEBUG = NODE_ENV !== 'production';
+// these can be moved to a config file
 const DEV_PORT = 3001;
 const BUILD_PATH = 'build';
 const JS_OUTPUT = 'index.js';
@@ -13,10 +15,6 @@ const CSS_OUTPUT = 'index.css';
 const SRC = 'src';
 const PUBLIC_PATH = `/${BUILD_PATH}/`;
 const NODE_MODULES = path.resolve(__dirname, 'node_modules');
-
-const BROWSER_ENV = {
-  NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
-};
 
 /**
  * Loaders.
@@ -86,7 +84,11 @@ const clientConfig = merge({}, config, {
   devtool: DEBUG ? 'cheap-module-eval-source-map' : false,
   plugins: config.plugins.concat([
       new webpack.DefinePlugin({
-        'process.env': BROWSER_ENV,
+        __CLIENT__: true,
+        __SERVER__: false,
+        'process.env': {
+          NODE_ENV: JSON.stringify(NODE_ENV || 'development'),
+        },
       }),
     ].concat(DEBUG ? [
         new webpack.HotModuleReplacementPlugin(),

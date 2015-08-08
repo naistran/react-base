@@ -2,6 +2,7 @@
   "extends": "eslint-config-airbnb",
   "rules": {
     "no-undef": 2,
+    "react/prop-types": 0,
     "react/sort-comp": [2, {
       "order": [
         "displayName",

@@ -5,7 +5,7 @@ export default {
 
   getComponents(cb) {
     require.ensure([], require => {
-      cb(null, require('./components/Locations'));
+      cb(null, require('./'));
     });
   },
 };
