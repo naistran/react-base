@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import * as counterActions from '../../actions/counter';
+import * as counterActions from './actions';
 
 class Home extends React.Component {
   render() {
@@ -20,7 +20,7 @@ class Home extends React.Component {
 
 export default connect(
   state => ({
-    count: state.counter.count,
+    count: state.Home.count,
   }),
   counterActions
 )(Home);
