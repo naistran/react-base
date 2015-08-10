@@ -86,8 +86,9 @@ const clientConfig = merge({}, config, {
       new webpack.DefinePlugin({
         __CLIENT__: true,
         __SERVER__: false,
+        __DEV__: DEBUG,
         'process.env': {
-          NODE_ENV: JSON.stringify(NODE_ENV || 'development'),
+          NODE_ENV: JSON.stringify(NODE_ENV),
         },
       }),
     ].concat(DEBUG ? [

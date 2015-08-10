@@ -1,20 +1,24 @@
 import koa from 'koa';
-import renderHTML from './renderHTML';
-import runRouter from '../runRouter';
-import pkg from '../../package';
+import createStore from './Root/createStore';
+import runRouter from './Root/runRouter';
+import renderHTML from './Root/renderHTML';
+import pkg from '../package';
 
 const PORT = 3000;
 const app = koa();
 
 app.use(function* render() {
-  const { path, search } = this;
-  const { component, redirectPath } = yield runRouter(path, search);
+  const store = createStore();
+  const {
+    component,
+    redirectPath,
+  } = yield runRouter(this.path, this.search, undefined, store);
 
   if (redirectPath) {
     return this.redirect(redirectPath);
   }
 
-  this.body = renderHTML(component);
+  this.body = renderHTML(component, store);
 });
 
 app.listen(PORT, err => {

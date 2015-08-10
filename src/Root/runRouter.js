@@ -1,10 +1,10 @@
 import React from 'react';
 import Router from 'react-router';
 import Location from 'react-router/lib/Location';
-import App from './App';
+import Root from './';
 import routes from './App/routes';
 
-function runRouter(path, query, history) {
+function runRouter(path, query, history, store) {
   const location = new Location(path, query);
   return new Promise((resolve, reject) => {
     Router.run(routes, location, (error, routerState, transition) => {
@@ -21,8 +21,9 @@ function runRouter(path, query, history) {
         routerState.history = history;
       }
 
-      const component = <App routes={routes} routerState={routerState}/>;
-      return resolve({ component });
+      return resolve({
+        component: <Root store={store} routes={routes} routerState={routerState}/>,
+      });
     });
   });
 }

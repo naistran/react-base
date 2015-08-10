@@ -1,7 +1,7 @@
 export default {
-  path: '/',
-  component: require('../App'),
+  component: require('..'),
   childRoutes: [
+    require('./Home/routes'),
     require('./Explore/routes'),
     require('./NotFound/routes'),
   ],
