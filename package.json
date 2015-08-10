@@ -2,10 +2,10 @@
   "name": "react-base",
   "version": "0.0.1",
   "description": "Modern React base",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "NODE_ENV=production node index",
-    "start-dev": "NODE_ENV=development nodemon index",
+    "start": "NODE_ENV=production node server",
+    "start-dev": "NODE_ENV=development nodemon server",
     "watch-client": "nodemon -w webpack.config.js -w webpack-dev-server.js webpack-dev-server",
     "dev": "concurrent --kill-others \"npm run watch-client\" \"npm run start-dev\"",
     "build": "scripts/build",

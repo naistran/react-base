@@ -8,8 +8,8 @@ const DEV_PORT = 3001;
 new WebpackDevServer(webpack(config), {
   publicPath: config.output.publicPath,
   hot: true,
-  // quiet: true,
-  // noInfo: true,
+  quiet: true,
+  noInfo: true,
   stats: { colors: true },
   proxy: [{
     path: /^(?!.*\.hot-update\.js)(.*)$/,
