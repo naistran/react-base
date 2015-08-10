@@ -19,7 +19,7 @@ class Html extends Component {
       <head>
         <meta charSet="UTF-8"/>
         <title>{title}</title>
-        {/* <link rel="stylesheet" href="/build/index.css"/> */}
+        <link rel="stylesheet" href="/build/index.css"/>
       </head>
       <body>
         <div id="body" dangerouslySetInnerHTML={{ __html: renderToString(component) }}/>
