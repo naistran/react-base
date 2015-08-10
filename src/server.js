@@ -1,7 +1,7 @@
 import koa from 'koa';
 import createStore from './Root/createStore';
 import runRouter from './Root/runRouter';
-import renderHTML from './Root/renderHTML';
+import renderHTML from './Root/Html/renderHTML';
 import pkg from '../package';
 
 const PORT = 3000;

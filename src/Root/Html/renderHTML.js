@@ -1,5 +1,5 @@
 import React from 'react';
-import Html from './Html';
+import Html from './';
 
 function renderHTML(component, store) {
   const html = <Html component={component} store={store}/>;
