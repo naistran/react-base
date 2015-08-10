@@ -1,3 +1,3 @@
 import { createAction } from 'redux-actions';
 
-export const increment = createAction('COUNTER_INCREMENT');
+export const increment = createAction('COUNTER_INCREMENT', () => undefined);
