@@ -4,7 +4,7 @@ class DevPanel extends React.Component {
   render() {
     if (__CLIENT__ && __DEV__) {
       /* eslint no-console: 0 */
-      console.info('Checksum is invalid because redux-devtools are enabled.');
+      console.info('Checksum is only invalid because redux-devtools are enabled.');
 
       const { store } = this.props;
       const { DevTools, DebugPanel, LogMonitor } = require('redux-devtools/lib/react');
