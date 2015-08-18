@@ -8,14 +8,15 @@
     "start-dev": "NODE_ENV=development nodemon server",
     "watch-client": "nodemon -w webpack.config.js -w webpack-dev-server.js webpack-dev-server",
     "dev": "concurrent --kill-others \"npm run watch-client\" \"npm run start-dev\"",
-    "build": "scripts/build",
-    "lint": "scripts/lint"
+    "build": "NODE_ENV=production webpack --verbose --colors --display-error-details --config",
+    "lint": "eslint src"
   },
   "author": "",
   "dependencies": {
     "babel": "^5.8.20",
     "babel-runtime": "^5.8.20",
     "koa": "^0.21.0",
+    "koa-static": "^1.4.9",
     "react": "^0.13.3",
     "react-document-meta": "^0.1.4",
     "react-redux": "^0.9.0",

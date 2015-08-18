@@ -1,4 +1,5 @@
 import koa from 'koa';
+import serve from 'koa-static';
 import createStore from './Root/createStore';
 import runRouter from './Root/runRouter';
 import renderHTML from './Root/renderHTML';
@@ -6,6 +7,10 @@ import pkg from '../package';
 
 const PORT = 3000;
 const app = koa();
+
+app.use(serve('./src/assets', {
+  maxage: 24 * 60 * 60 * 1000, // 1 day
+}));
 
 app.use(function* render() {
   if (__DEV__) {

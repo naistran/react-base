@@ -7,4 +7,6 @@
 coverage
 cache
 
-webpack-stats.json
+src/assets/*.map
+src/assets/*.js
+src/assets/*.css

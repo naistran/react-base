@@ -12,8 +12,6 @@ const DEBUG = NODE_ENV !== 'production';
 // these can be moved to a config file
 const DEV_PORT = 3001;
 const BUILD_PATH = 'build';
-const JS_OUTPUT = 'index.js';
-const CSS_OUTPUT = 'index.css';
 const SRC = 'src';
 const PUBLIC_PATH = `/${BUILD_PATH}/`;
 const NODE_MODULES = path.resolve(__dirname, 'node_modules');
