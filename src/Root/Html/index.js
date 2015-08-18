@@ -12,19 +12,22 @@ class Html extends Component {
   }
 
   render() {
-    const { component, store } = this.props;
+    const { assets, component, store } = this.props;
     const title = 'React Base';
     return (
       <html lang="en">
       <head>
         <meta charSet="UTF-8"/>
         <title>{title}</title>
-        <link rel="stylesheet" href="/build/index.css"/>
+        {Object.keys(assets.styles).map((style, i) =>
+          <link href={assets.styles[style]} key={i} media="screen, projection"
+            rel="stylesheet" type="text/css"/>
+        )}
       </head>
       <body>
         <div id="body" dangerouslySetInnerHTML={{ __html: renderToString(component) }}/>
         <script dangerouslySetInnerHTML={{ __html: `window.__INITIAL_STATE__=${serialize(store.getState())}` }}/>
-        <script src="/build/index.js"/>
+        <script src={assets.javascript.main}/>
       </body>
       </html>
     );

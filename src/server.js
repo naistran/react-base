@@ -8,6 +8,12 @@ const PORT = 3000;
 const app = koa();
 
 app.use(function* render() {
+  if (__DEV__) {
+    // Don't cache webpack stats: the script file would change since
+    // hot module replacement is enabled in development
+    webpackIsomorphicTools.refresh();
+  }
+
   const store = createStore();
   const {
     component,
@@ -18,7 +24,7 @@ app.use(function* render() {
     return this.redirect(redirectPath);
   }
 
-  this.body = renderHTML(component, store);
+  this.body = renderHTML(webpackIsomorphicTools.assets(), component, store);
 });
 
 app.listen(PORT, err => {

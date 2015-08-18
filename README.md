@@ -15,4 +15,10 @@ A starter kit with the following features:
 npm run dev
 ```
 
+If you get `error: watch ENOSPC` then run the following command:
+
+```
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+```
+
 Then go to `localhost:3001`.

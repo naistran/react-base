@@ -4,6 +4,8 @@ const webpack = require('webpack');
 const merge = require('lodash.merge');
 const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const WebpackIsomorphicToolsPlugin = require('webpack-isomorphic-tools/plugin');
+const webpackIsomorphicToolsPlugin = new WebpackIsomorphicToolsPlugin(require('./webpack-isomorphic-tools'));
 
 const NODE_ENV = process.env.NODE_ENV;
 const DEBUG = NODE_ENV !== 'production';
@@ -53,7 +55,7 @@ const config = {
       // disable `amd` even in /node_modules - uncomment depending on the project's deps
       { test: /\.js$/, loader: 'imports?define=>false' },
       { test: /\.json$/, loader: 'json' },
-      { test: /(\.png$|\.jpg$|\.jpeg$|\.gif$|\.svg$)/, loader: 'url?limit=10000' },
+      { test: webpackIsomorphicToolsPlugin.regular_expression('images'), loader: 'url?limit=10240' },
     ],
   },
 
@@ -77,38 +79,40 @@ const clientConfig = merge({}, config, {
       'webpack/hot/only-dev-server',
     ] : []),
   output: {
-    filename: JS_OUTPUT,
+    filename: '[name]-[hash].js',
+    chunkFilename: '[name]-[chunkhash].js',
     publicPath: PUBLIC_PATH,
     path: path.resolve(__dirname, SRC, 'assets', BUILD_PATH),
   },
   devtool: DEBUG ? 'cheap-module-eval-source-map' : false,
   plugins: config.plugins.concat([
-      new webpack.DefinePlugin({
-        __CLIENT__: true,
-        __SERVER__: false,
-        __DEV__: DEBUG,
-        'process.env': {
-          NODE_ENV: JSON.stringify(NODE_ENV),
-        },
-      }),
-    ].concat(DEBUG ? [
-        new webpack.HotModuleReplacementPlugin(),
-      ] : [
-        new webpack.optimize.DedupePlugin(),
-        new webpack.optimize.UglifyJsPlugin({
-          screw_ie8: true,
-          compress: {
-            keep_fnames: true,
-            drop_console: true,
-          },
-          mangle: {
-            keep_fnames: true,
-          },
-        }),
-        new webpack.optimize.AggressiveMergingPlugin(),
-        new ExtractTextPlugin(CSS_OUTPUT),
-      ])
-  ),
+    new webpack.DefinePlugin({
+      __CLIENT__: true,
+      __SERVER__: false,
+      __DEV__: DEBUG,
+      'process.env': {
+        NODE_ENV: JSON.stringify(NODE_ENV),
+      },
+    }),
+  ].concat(DEBUG ? [
+    new webpack.HotModuleReplacementPlugin(),
+    webpackIsomorphicToolsPlugin.development(),
+  ] : [
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.UglifyJsPlugin({
+      screw_ie8: true,
+      compress: {
+        keep_fnames: true,
+        drop_console: true,
+      },
+      mangle: {
+        keep_fnames: true,
+      },
+    }),
+    new webpack.optimize.AggressiveMergingPlugin(),
+    new ExtractTextPlugin('[name]-[chunkhash].css', { allChunks: true }),
+    webpackIsomorphicToolsPlugin,
+  ])),
   module: {
     loaders: config.module.loaders.concat({
       test: /\.css$/,
