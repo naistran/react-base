@@ -7,6 +7,6 @@
 coverage
 cache
 
-src/assets/*.map
-src/assets/*.js
-src/assets/*.css
+src/assets/build/*.map
+src/assets/build/*.js
+src/assets/build/*.css
