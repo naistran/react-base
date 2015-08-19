@@ -1,20 +1,37 @@
 /* eslint camelcase: 0 */
 
 const webpack = require('webpack');
-const merge = require('lodash.merge');
-const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const WebpackIsomorphicToolsPlugin = require('webpack-isomorphic-tools/plugin');
-const webpackIsomorphicToolsPlugin = new WebpackIsomorphicToolsPlugin(require('./webpack-isomorphic-tools'));
+const ManifestPlugin = require('webpack-manifest-plugin');
+const path = require('path');
+const fs = require('fs');
+const merge = require('lodash.merge');
 
 const NODE_ENV = process.env.NODE_ENV;
 const DEBUG = NODE_ENV !== 'production';
 // these can be moved to a config file
 const DEV_PORT = 3001;
 const BUILD_PATH = 'build';
-const SRC = 'src';
-const PUBLIC_PATH = `/${BUILD_PATH}/`;
-const NODE_MODULES = path.resolve(__dirname, 'node_modules');
+const GLOBALS = {
+  __CLIENT__: false,
+  __SERVER__: false,
+  __DEV__: DEBUG,
+  'process.env': {
+    NODE_ENV: JSON.stringify(NODE_ENV),
+  },
+};
+
+const rootDir = __dirname;
+const srcDir = path.resolve(__dirname, 'src');
+
+const nodeModulesExternals = {};
+fs.readdirSync('node_modules')
+  .filter(function filter(x) {
+    return ['.bin'].indexOf(x) === -1;
+  })
+  .forEach(function forEach(mod) {
+    nodeModulesExternals[mod] = 'commonjs ' + mod;
+  });
 
 /**
  * Loaders.
@@ -22,18 +39,15 @@ const NODE_MODULES = path.resolve(__dirname, 'node_modules');
 
 // don't want to use bluebirdCoroutines on the client (too big)
 const babel = 'babel?blacklist=bluebirdCoroutines';
-const JS_LOADER = DEBUG ? ['react-hot', babel] : [babel];
-
-const STYLE_LOADER = 'style';
-const CSS_LOADER = DEBUG ?
-  'css?sourceMap!cssnext?sourceMap' :
-  'css?minimize!cssnext';
+const js = DEBUG ? ['react-hot', babel] : [babel];
+const style = 'style';
+const css = `css?modules&importLoaders=2&sourceMap&localIdentName=[local]__[hash:base64:5]&${DEBUG ? 'sourceMap!cssnext?sourceMap' : 'minimize!cssnext'}`;
 
 /**
  * Config.
  */
 
-const config = {
+const common = {
   cache: DEBUG,
   debug: DEBUG,
 
@@ -41,60 +55,64 @@ const config = {
     extensions: ['', '.js'],
   },
 
+  output: {
+    path: path.resolve(srcDir, 'assets', BUILD_PATH),
+  },
+
+  module: {
+    loaders: [
+      { test: /\.js$/, loaders: js, exclude: path.resolve(rootDir, 'node_modules') },
+      // disable `amd` even in /node_modules - uncomment depending on the project's deps
+      { test: /\.js$/, loader: 'imports?define=>false' },
+      { test: /\.json$/, loader: 'json' },
+      { test: /(\.png$|\.jpg$|\.jpeg$|\.gif$|\.svg$)/, loader: 'url?limit=10240' },
+    ],
+  },
+
   plugins: [
     new webpack.NoErrorsPlugin(),
     new webpack.optimize.OccurenceOrderPlugin(),
   ],
 
-  module: {
-    loaders: [
-      { test: /\.js$/, loaders: JS_LOADER, exclude: NODE_MODULES },
-      // { test: /\.view\/index\.js$/, loaders: CHUNK_LOADER, exclude: NODE_MODULES },
-      // disable `amd` even in /node_modules - uncomment depending on the project's deps
-      { test: /\.js$/, loader: 'imports?define=>false' },
-      { test: /\.json$/, loader: 'json' },
-      { test: webpackIsomorphicToolsPlugin.regular_expression('images'), loader: 'url?limit=10240' },
-    ],
-  },
-
   cssnext: {
     import: {
       path: [
-        path.resolve(__dirname, SRC),
+        srcDir,
       ],
     },
   },
-  // some modules need this
-  node: {
-    console: true,
-  },
 };
 
-const clientConfig = merge({}, config, {
-  entry: [path.resolve(__dirname, SRC, 'client')]
+const clientConfig = merge({}, common, {
+  // client config
+  name: 'client',
+  devtool: DEBUG ? 'cheap-module-eval-source-map' : false,
+
+  entry: [path.resolve(srcDir, 'client')]
     .concat(DEBUG ? [
       `webpack-dev-server/client?http://0.0.0.0:${DEV_PORT}`,
       'webpack/hot/only-dev-server',
     ] : []),
+
   output: {
-    filename: '[name]-[hash].js',
+    filename: DEBUG ? 'index.js' : '[name]-[hash].js',
     chunkFilename: '[name]-[chunkhash].js',
-    publicPath: PUBLIC_PATH,
-    path: path.resolve(__dirname, SRC, 'assets', BUILD_PATH),
+    publicPath: `/${BUILD_PATH}/`,
   },
-  devtool: DEBUG ? 'cheap-module-eval-source-map' : false,
-  plugins: config.plugins.concat([
-    new webpack.DefinePlugin({
-      __CLIENT__: true,
-      __SERVER__: false,
-      __DEV__: DEBUG,
-      'process.env': {
-        NODE_ENV: JSON.stringify(NODE_ENV),
-      },
+
+  module: {
+    loaders: common.module.loaders.concat({
+      test: /\.css$/,
+      loader: DEBUG ?
+        `${style}!${css}` :
+        ExtractTextPlugin.extract(style, css),
     }),
-  ].concat(DEBUG ? [
+  },
+
+  plugins: common.plugins.concat([
+    new webpack.DefinePlugin(merge({}, GLOBALS, { __CLIENT__: true })),
+  ]).concat(DEBUG ? [
     new webpack.HotModuleReplacementPlugin(),
-    webpackIsomorphicToolsPlugin.development(),
   ] : [
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin({
@@ -109,16 +127,41 @@ const clientConfig = merge({}, config, {
     }),
     new webpack.optimize.AggressiveMergingPlugin(),
     new ExtractTextPlugin('[name]-[chunkhash].css', { allChunks: true }),
-    webpackIsomorphicToolsPlugin,
-  ])),
-  module: {
-    loaders: config.module.loaders.concat({
-      test: /\.css$/,
-      loader: DEBUG ?
-        `${STYLE_LOADER}!${CSS_LOADER}` :
-        ExtractTextPlugin.extract(STYLE_LOADER, CSS_LOADER),
-    }),
+    new ManifestPlugin(),
+  ]),
+
+  // some modules need this
+  node: {
+    console: true,
   },
 });
 
-module.exports = clientConfig;
+const serverConfig = merge({}, common, {
+  // server config
+  name: 'server',
+  devtool: '#source-map',
+  entry: path.resolve(srcDir, 'shared', 'runRouter'),
+  target: 'node',
+  externals: nodeModulesExternals,
+
+  output: {
+    // The filename of the entry chunk as relative path inside the output.path directory
+    filename: 'runRouter.js',
+    libraryTarget: 'commonjs2',
+  },
+
+  module: {
+    loaders: common.module.loaders.concat({
+      test: /\.css$/,
+      loader: css,
+    }),
+  },
+
+  plugins: common.plugins.concat([
+    new webpack.DefinePlugin(merge({}, GLOBALS, { __SERVER__: true })),
+    new webpack.BannerPlugin('require("source-map-support").install();',
+      { raw: true, entryOnly: false }),
+  ]),
+});
+
+module.exports = [clientConfig, serverConfig];

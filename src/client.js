@@ -1,6 +1,6 @@
 import React from 'react';
 import BrowserHistory from 'react-router/lib/BrowserHistory';
-import runRouter from './Root/runRouter';
+import runRouter from './shared/runRouter';
 
 const history = new BrowserHistory();
 const { pathname, search } = document.location;

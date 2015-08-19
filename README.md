@@ -8,6 +8,7 @@ A starter kit with the following features:
 * Shared routing using [react-router](https://github.com/rackt/react-router).
 * Sane state management with [redux](https://github.com/gaearon/redux).
 * Dev tools using [redux-devtools](https://github.com/gaearon/redux-devtools).
+* [CSS Modules](http://glenmaddern.com/articles/css-modules)
 
 ## How to run
 

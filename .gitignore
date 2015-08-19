@@ -9,4 +9,5 @@ cache
 
 src/assets/build/*.map
 src/assets/build/*.js
+src/assets/build/*.json
 src/assets/build/*.css

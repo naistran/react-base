@@ -1,7 +1,7 @@
 import React from 'react';
 import Router from 'react-router';
 import Location from 'react-router/lib/Location';
-import Root from './';
+import Root from './Root';
 import routes from './App/routes';
 
 function runRouter(path, query, history, store) {
