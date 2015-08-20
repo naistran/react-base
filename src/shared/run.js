@@ -1,14 +1,17 @@
 import React from 'react';
 import Router from 'react-router';
 import Location from 'react-router/lib/Location';
-import Root from './Root';
 import routes from './App/routes';
+import Root from './Root';
 
-function runRouter(path, query, history, store) {
+const history = __CLIENT__ ?
+  require('react-router/lib/BrowserHistory').history : undefined;
+
+function run(path, query, store) {
   const location = new Location(path, query);
   return new Promise((resolve, reject) => {
-    Router.run(routes, location, (error, routerState, transition) => {
-      if (error) return reject(error);
+    Router.run(routes, location, (err, routerState, transition) => {
+      if (err) return reject(err);
 
       if (transition && transition.redirectInfo) {
         return resolve({
@@ -16,16 +19,16 @@ function runRouter(path, query, history, store) {
         });
       }
 
-      // for client only
-      if (history) {
-        routerState.history = history;
-      }
+      const state = {
+        ...routerState,
+        history,
+      };
 
       return resolve({
-        component: <Root store={store} routes={routes} routerState={routerState}/>,
+        component: <Root store={store} routerState={state}/>,
       });
     });
   });
 }
 
-export default runRouter;
+export default run;

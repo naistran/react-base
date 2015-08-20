@@ -1,0 +1,6 @@
+/**
+ * Import global CSS here.
+ * This `css` folder is the only place where CSS is global.
+ */
+
+@import 'bootstrap/dist/css/bootstrap.css';

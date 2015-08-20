@@ -9,9 +9,7 @@ const merge = require('lodash.merge');
 
 const NODE_ENV = process.env.NODE_ENV;
 const DEBUG = NODE_ENV !== 'production';
-// these can be moved to a config file
 const DEV_PORT = 3001;
-const BUILD_PATH = 'build';
 const GLOBALS = {
   __CLIENT__: false,
   __SERVER__: false,
@@ -21,17 +19,13 @@ const GLOBALS = {
   },
 };
 
-const rootDir = __dirname;
-const srcDir = path.resolve(__dirname, 'src');
-
-const nodeModulesExternals = {};
-fs.readdirSync('node_modules')
-  .filter(function filter(x) {
-    return ['.bin'].indexOf(x) === -1;
-  })
-  .forEach(function forEach(mod) {
-    nodeModulesExternals[mod] = 'commonjs ' + mod;
-  });
+const ROOT_PATH = __dirname;
+const BUILD_DIR = 'build';
+const SRC_PATH = path.resolve(ROOT_PATH, 'src');
+const GLOBAL_CSS_PATH = path.resolve(SRC_PATH, 'client', 'css');
+const SHARED_PATH = path.resolve(SRC_PATH, 'shared');
+const OUTPUT_PATH = path.resolve(SRC_PATH, 'assets', BUILD_DIR);
+const SHARED_OUTPUT_PATH = path.resolve(SHARED_PATH, BUILD_DIR);
 
 /**
  * Loaders.
@@ -40,8 +34,14 @@ fs.readdirSync('node_modules')
 // don't want to use bluebirdCoroutines on the client (too big)
 const babel = 'babel?blacklist=bluebirdCoroutines';
 const js = DEBUG ? ['react-hot', babel] : [babel];
-const style = 'style';
-const css = `css?modules&importLoaders=2&sourceMap&localIdentName=[local]__[hash:base64:5]&${DEBUG ? 'sourceMap!cssnext?sourceMap' : 'minimize!cssnext'}`;
+const cssModule = `modules&importLoaders=1&localIdentName=[local]__[hash:base64:5]&`;
+const cssLoaders = `${DEBUG ? 'sourceMap' : 'minimize'}!postcss`;
+function makeCssLoaders(css) {
+  return DEBUG ? `style!${css}` : ExtractTextPlugin.extract('style', css);
+}
+const localCss = makeCssLoaders(`css?${cssModule}${cssLoaders}`);
+const globalCss = makeCssLoaders(`css?${cssLoaders}`);
+const serverCss = `css/locals?${cssModule}${cssLoaders}`;
 
 /**
  * Config.
@@ -55,32 +55,42 @@ const common = {
     extensions: ['', '.js'],
   },
 
-  output: {
-    path: path.resolve(srcDir, 'assets', BUILD_PATH),
-  },
-
   module: {
     loaders: [
-      { test: /\.js$/, loaders: js, exclude: path.resolve(rootDir, 'node_modules') },
+      { test: /\.js$/, loaders: js, exclude: path.resolve(ROOT_PATH, 'node_modules') },
       // disable `amd` even in /node_modules - uncomment depending on the project's deps
       { test: /\.js$/, loader: 'imports?define=>false' },
       { test: /\.json$/, loader: 'json' },
-      { test: /(\.png$|\.jpg$|\.jpeg$|\.gif$|\.svg$)/, loader: 'url?limit=10240' },
+      { test: /\.(eot|woff|woff2|ttf|png|jpg|jpeg|gif|svg)$/, loader: 'url?limit=30000&name=[name]-[hash].[ext]' },
     ],
   },
 
-  plugins: [
-    new webpack.NoErrorsPlugin(),
+  plugins: DEBUG ? [] : [
     new webpack.optimize.OccurenceOrderPlugin(),
   ],
 
-  cssnext: {
-    import: {
-      path: [
-        srcDir,
-      ],
-    },
+  postcss: function postcss() {
+    return [
+      require('cssnext')({
+        import: {
+          path: [
+            SRC_PATH,
+          ],
+          onImport: function onImport(files) {
+            files.forEach(this.addDependency);
+          }.bind(this),
+        },
+      }),
+    ];
   },
+
+  // cssnext: {
+  //   import: {
+  //     path: [
+  //       SRC_PATH,
+  //     ],
+  //   },
+  // },
 };
 
 const clientConfig = merge({}, common, {
@@ -88,7 +98,7 @@ const clientConfig = merge({}, common, {
   name: 'client',
   devtool: DEBUG ? 'cheap-module-eval-source-map' : false,
 
-  entry: [path.resolve(srcDir, 'client')]
+  entry: [path.resolve(SRC_PATH, 'client')]
     .concat(DEBUG ? [
       `webpack-dev-server/client?http://0.0.0.0:${DEV_PORT}`,
       'webpack/hot/only-dev-server',
@@ -97,19 +107,27 @@ const clientConfig = merge({}, common, {
   output: {
     filename: DEBUG ? 'index.js' : '[name]-[hash].js',
     chunkFilename: '[name]-[chunkhash].js',
-    publicPath: `/${BUILD_PATH}/`,
+    publicPath: `/${BUILD_DIR}/`,
+    path: OUTPUT_PATH,
   },
 
   module: {
-    loaders: common.module.loaders.concat({
-      test: /\.css$/,
-      loader: DEBUG ?
-        `${style}!${css}` :
-        ExtractTextPlugin.extract(style, css),
-    }),
+    loaders: common.module.loaders.concat([
+      {
+        test: /\.css$/,
+        loader: globalCss,
+        include: [GLOBAL_CSS_PATH],
+      },
+      {
+        test: /\.css$/,
+        loader: localCss,
+        exclude: [GLOBAL_CSS_PATH],
+      },
+    ]),
   },
 
   plugins: common.plugins.concat([
+    new webpack.NoErrorsPlugin(),
     new webpack.DefinePlugin(merge({}, GLOBALS, { __CLIENT__: true })),
   ]).concat(DEBUG ? [
     new webpack.HotModuleReplacementPlugin(),
@@ -124,6 +142,7 @@ const clientConfig = merge({}, common, {
       mangle: {
         keep_fnames: true,
       },
+      sourceMap: false,
     }),
     new webpack.optimize.AggressiveMergingPlugin(),
     new ExtractTextPlugin('[name]-[chunkhash].css', { allChunks: true }),
@@ -136,24 +155,37 @@ const clientConfig = merge({}, common, {
   },
 });
 
+const SHARED_ENTRY = 'run';
+const nodeModulesExternals = {};
+fs.readdirSync('node_modules')
+  .filter(function filter(x) {
+    return ['.bin'].indexOf(x) === -1;
+  })
+  .forEach(function forEach(mod) {
+    nodeModulesExternals[mod] = 'commonjs ' + mod;
+  });
+
 const serverConfig = merge({}, common, {
   // server config
   name: 'server',
-  devtool: '#source-map',
-  entry: path.resolve(srcDir, 'shared', 'runRouter'),
+  devtool: 'cheap-source-map',
+  entry: path.resolve(SRC_PATH, 'shared', SHARED_ENTRY),
   target: 'node',
   externals: nodeModulesExternals,
+  recordsPath: path.resolve(SHARED_OUTPUT_PATH, '_records'),
 
   output: {
     // The filename of the entry chunk as relative path inside the output.path directory
-    filename: 'runRouter.js',
+    filename: `${SHARED_ENTRY}.js`,
+    chunkFilename: `${SHARED_ENTRY}-[chunkhash].js`,
     libraryTarget: 'commonjs2',
+    path: SHARED_OUTPUT_PATH,
   },
 
   module: {
     loaders: common.module.loaders.concat({
       test: /\.css$/,
-      loader: css,
+      loader: serverCss,
     }),
   },
 

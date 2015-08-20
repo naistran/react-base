@@ -1,6 +1,8 @@
 require('babel/register')({
-  ignore: false,
-  only: new RegExp(`${__dirname}\/src\/`),
+  ignore: [
+    new RegExp(`${__dirname}\/node_modules\/`),
+    new RegExp(`${__dirname}\/src\/shared\/build\/`),
+  ],
 });
 
 global.__CLIENT__ = false;

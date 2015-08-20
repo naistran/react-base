@@ -6,10 +6,9 @@ const manifest = __DEV__ ? {
   'main.css': 'index.css',
 } : require('../assets/build/manifest');
 
-function renderHTML(component, store) {
+function renderHTML(component, initialState) {
   const app = React.renderToString(component);
   const meta = DocumentMeta.rewind({ asHtml: true });
-  const initialState = serialize(store.getState());
   // weird indentation because otherwise the response html has extra indentation
   return `<!DOCTYPE html>
 <html lang="en">
@@ -20,7 +19,7 @@ function renderHTML(component, store) {
 </head>
 <body>
   <div id="body">${app}</div>
-  <script>window.__INITIAL_STATE__=${initialState}</script>
+  <script>window.__INITIAL_STATE__=${serialize(initialState)}</script>
   <script src="/build/${manifest['main.js']}"></script>
 </body>
 </html>`;

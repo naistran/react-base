@@ -1,5 +1,6 @@
 import React from 'react';
 import DocumentMeta from 'react-document-meta';
+import styles from './index.css';
 
 const title = 'React Base';
 const description = 'Modern React Base';
@@ -31,7 +32,7 @@ const meta = {
 class App extends React.Component {
   render() {
     return (
-      <div>
+      <div className={styles.root}>
         <DocumentMeta {...meta}/>
         {this.props.children}
       </div>

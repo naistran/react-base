@@ -1,11 +1,11 @@
-import React from 'react';
-import BrowserHistory from 'react-router/lib/BrowserHistory';
-import runRouter from './shared/runRouter';
+import './css/index.css';
 
-const history = new BrowserHistory();
+import React from 'react';
+import run from '../shared/run';
+
 const { pathname, search } = document.location;
 
-runRouter(pathname, search, history)
+run(pathname, search)
   .then(({ component }) => {
     React.render(component, document.getElementById('body'));
   })

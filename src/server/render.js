@@ -1,23 +1,16 @@
 import createStore from '../shared/createStore';
-import runRouter from '../assets/build/runRouter';
+import run from '../shared/build/run';
 import renderHTML from './renderHTML';
-const manifest = __DEV__ ? {
-  'main.js': 'index.js',
-  'main.css': 'index.css',
-} : require('../assets/build/manifest');
 
 function* render() {
   const store = createStore();
-  const {
-    component,
-    redirectPath,
-  } = yield runRouter(this.path, this.search, undefined, store);
+  const { component, redirectPath } = yield run(this.path, this.search, store);
 
   if (redirectPath) {
     return this.redirect(redirectPath);
   }
 
-  this.body = renderHTML(component, store);
+  this.body = renderHTML(component, store.getState());
 }
 
 export default render;
