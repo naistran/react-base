@@ -17,7 +17,7 @@ new WebpackDevServer(webpack(clientConfig), {
   publicPath: clientConfig.output.publicPath,
   hot: true,
   // quiet: true,
-  // noInfo: true,
+  noInfo: true,
   stats: { colors: true },
   proxy: [{
     path: /^(?!.*\.hot-update\.js)(.*)$/,
