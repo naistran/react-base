@@ -1,6 +1,7 @@
 import React from 'react';
 import serialize from 'serialize-javascript';
 import DocumentMeta from 'react-document-meta';
+
 const manifest = __DEV__ ? {
   'main.js': 'index.js',
   'main.css': 'index.css',
@@ -9,7 +10,7 @@ const manifest = __DEV__ ? {
 function renderHTML(component, initialState) {
   const app = React.renderToString(component);
   const meta = DocumentMeta.rewind({ asHtml: true });
-  // weird indentation because otherwise the response html has extra indentation
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
