@@ -10,7 +10,6 @@ const manifest = __DEV__ ? {
 function renderHTML(component, initialState) {
   const app = React.renderToString(component);
   const meta = DocumentMeta.rewind({ asHtml: true });
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
