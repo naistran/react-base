@@ -127,7 +127,6 @@ const clientConfig = merge({}, common, {
   },
 
   plugins: common.plugins.concat([
-    new webpack.NoErrorsPlugin(),
     new webpack.DefinePlugin(merge({}, GLOBALS, { __CLIENT__: true })),
   ]).concat(DEBUG ? [
     new webpack.HotModuleReplacementPlugin(),
