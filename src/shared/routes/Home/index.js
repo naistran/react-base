@@ -12,7 +12,7 @@ class Home extends React.Component {
         <p>
           {count} <button onClick={increment}>Increment</button>
         </p>
-        <Link to="explore">Explore</Link>
+        <Link to="/explore">Explore</Link>
       </main>
     );
   }

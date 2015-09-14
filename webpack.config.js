@@ -26,6 +26,7 @@ const GLOBAL_CSS_PATH = path.resolve(SRC_PATH, 'client', 'css');
 const SHARED_PATH = path.resolve(SRC_PATH, 'shared');
 const OUTPUT_PATH = path.resolve(SRC_PATH, 'assets', BUILD_DIR);
 const SHARED_OUTPUT_PATH = path.resolve(SHARED_PATH, BUILD_DIR);
+const NODE_MODULES_PATH = path.resolve(ROOT_PATH, 'node_modules');
 
 /**
  * Loaders.
@@ -33,7 +34,7 @@ const SHARED_OUTPUT_PATH = path.resolve(SHARED_PATH, BUILD_DIR);
 
 // don't want to use bluebirdCoroutines on the client (too big)
 const babel = 'babel?blacklist=bluebirdCoroutines';
-const js = DEBUG ? ['react-hot', babel] : [babel];
+const js = [babel];
 const cssModule = `modules&importLoaders=1&localIdentName=[local]__[hash:base64:5]&`;
 const cssLoaders = `${DEBUG ? 'sourceMap' : 'minimize'}!postcss`;
 function makeCssLoaders(css) {
@@ -57,7 +58,6 @@ const common = {
 
   module: {
     loaders: [
-      { test: /\.js$/, loaders: js, exclude: path.resolve(ROOT_PATH, 'node_modules') },
       // disable `amd` even in /node_modules - uncomment depending on the project's deps
       { test: /\.js$/, loader: 'imports?define=>false' },
       { test: /\.json$/, loader: 'json' },
@@ -113,16 +113,9 @@ const clientConfig = merge({}, common, {
 
   module: {
     loaders: common.module.loaders.concat([
-      {
-        test: /\.css$/,
-        loader: globalCss,
-        include: [GLOBAL_CSS_PATH],
-      },
-      {
-        test: /\.css$/,
-        loader: localCss,
-        exclude: [GLOBAL_CSS_PATH],
-      },
+      { test: /\.js$/, loaders: DEBUG ? ['react-hot'].concat(js) : js, exclude: NODE_MODULES_PATH },
+      { test: /\.css$/, loader: globalCss, include: [GLOBAL_CSS_PATH] },
+      { test: /\.css$/, loader: localCss, exclude: [GLOBAL_CSS_PATH] },
     ]),
   },
 
@@ -154,7 +147,7 @@ const clientConfig = merge({}, common, {
   },
 });
 
-const SHARED_ENTRY = 'run';
+const SHARED_ENTRY = 'routes';
 const nodeModulesExternals = {};
 fs.readdirSync('node_modules')
   .filter(function filter(x) {
@@ -168,7 +161,7 @@ const serverConfig = merge({}, common, {
   // server config
   name: 'server',
   devtool: 'cheap-source-map',
-  entry: path.resolve(SRC_PATH, 'shared', SHARED_ENTRY),
+  entry: path.resolve(SHARED_PATH, SHARED_ENTRY),
   target: 'node',
   externals: nodeModulesExternals,
   recordsPath: path.resolve(SHARED_OUTPUT_PATH, '_records'),
@@ -176,16 +169,16 @@ const serverConfig = merge({}, common, {
   output: {
     // The filename of the entry chunk as relative path inside the output.path directory
     filename: `${SHARED_ENTRY}.js`,
-    chunkFilename: `${SHARED_ENTRY}-[chunkhash].js`,
+    chunkFilename: '[name]-[chunkhash].js',
     libraryTarget: 'commonjs2',
     path: SHARED_OUTPUT_PATH,
   },
 
   module: {
-    loaders: common.module.loaders.concat({
-      test: /\.css$/,
-      loader: serverCss,
-    }),
+    loaders: common.module.loaders.concat([
+      { test: /\.js$/, loaders: js, exclude: NODE_MODULES_PATH },
+      { test: /\.css$/, loader: serverCss },
+    ]),
   },
 
   plugins: common.plugins.concat([

@@ -1,4 +1,4 @@
 export default {
-  path: '/',
+  path: 'locations',
   component: require('./'),
 };

@@ -1,16 +1,55 @@
+import React from 'react';
+import { RoutingContext, match } from 'react-router';
+import { Provider } from 'react-redux';
+import DocumentMeta from 'react-document-meta';
+import createLocation from 'history/lib/createLocation';
+import serialize from 'serialize-javascript';
 import createStore from '../shared/createStore';
-import run from '../shared/build/run';
-import renderHTML from './renderHTML';
+import routes from '../shared/build/routes';
+
+const manifest = __DEV__ ? {
+  'main.js': 'index.js',
+  'main.css': 'index.css',
+} : require('../assets/build/manifest');
+
+function renderHTML(app, meta, initialState) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charSet="UTF-8">
+  ${meta}
+  <link href="/build/${manifest['main.css']}" media="screen, projection" rel="stylesheet" type="text/css">
+</head>
+<body>
+  <div id="root">${app}</div>
+  <script>window.__INITIAL_STATE__=${initialState}</script>
+  <script src="/build/${manifest['main.js']}"></script>
+</body>
+</html>`;
+}
 
 function* render() {
   const store = createStore();
-  const { component, redirectPath } = yield run(this.path, this.search, store);
+  const location = createLocation(this.url);
 
-  if (redirectPath) {
-    return this.redirect(redirectPath);
-  }
+  match({ routes, location }, (err, redirectLocation, renderProps) => {
+    if (err) throw err;
 
-  this.body = renderHTML(component, store.getState());
+    if (redirectLocation) {
+      const { pathname, search } = redirectLocation;
+      return this.redirect(pathname + search);
+    }
+
+    const app = React.renderToString(
+      <Provider store={store}>
+        {() => <RoutingContext {...renderProps}/>}
+      </Provider>
+    );
+    const meta = DocumentMeta.renderAsHTML();
+    const initialState = serialize(store.getState());
+
+    this.body = renderHTML(app, meta, initialState);
+  });
 }
 
 export default render;

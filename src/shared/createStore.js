@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from './App/reducer';
+import reducer from './reducer';
 
 const middleware = [thunk];
 
@@ -12,12 +12,21 @@ if (__CLIENT__ && __DEV__) {
     applyMiddleware(...middleware),
     devTools(),
     persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/)),
-    createStore
-  );
+  )(createStore);
 }
 
 function Store(initialState = {}) {
-  return finalCreateStore(reducer, initialState);
+  const store = finalCreateStore(reducer, initialState);
+
+  if (module.hot) {
+    // Enable Webpack hot module replacement for reducers
+    module.hot.accept('./reducer', () => {
+      const nextRootReducer = require('./reducer');
+      store.replaceReducer(nextRootReducer);
+    });
+  }
+
+  return store;
 }
 
 export default Store;
