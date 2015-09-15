@@ -21,7 +21,7 @@ function renderHTML(app, head, initialState) {
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>${head.title}</title>
   ${head.meta}
-  <link href="/build/${manifest['main.css']}" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/build/${manifest['main.css']}" rel="stylesheet" type="text/css">
 </head>
 <body>
   <div id="root">${app}</div>
