@@ -17,6 +17,12 @@ const history = createHistory();
 // TODO: not complete. Waiting for official guide
 history.listen(location => {
   match({ routes, history, location }, (err, redirectLocation, renderProps) => {
+    if (err) throw err;
+
+    if (redirectLocation) {
+      return history.transitionTo(redirectLocation);
+    }
+
     render(
       <Provider store={store}>
         <RoutingContext {...renderProps}/>
