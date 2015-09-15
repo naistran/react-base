@@ -17,13 +17,14 @@ export default function createDevToolsWindow(store) {
   // Reload in case it's reusing the same window with the old content.
   win.location.reload();
 
-  win.document.write('<div id="react-devtools-root"></div>');
-
   // Wait a little bit for it to reload, then render.
-  setTimeout(() => render(
-    <DebugPanel top right bottom left>
-      <DevTools store={store} monitor={LogMonitor} />
-    </DebugPanel>,
-    win.document.getElementById('react-devtools-root')
-  ), 10);
+  setTimeout(() => {
+    win.document.write('<div id="react-devtools-root"></div>');
+    render(
+      <DebugPanel top right bottom left>
+        <DevTools store={store} monitor={LogMonitor} />
+      </DebugPanel>,
+      win.document.getElementById('react-devtools-root')
+    );
+  }, 10);
 }
