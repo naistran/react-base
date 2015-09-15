@@ -1,38 +1,33 @@
 import React from 'react';
-import DocumentMeta from 'react-document-meta';
+import Helmet from 'react-helmet';
 
 const title = 'React Base';
 const description = 'Modern React Base';
 const image = 'https://avatars1.githubusercontent.com/u/1136800?v=3&s=200';
 
-const meta = {
-  title,
-  description,
-  meta: {
-    charSet: 'utf-8',
-    property: {
-      'og:site_name': title,
-      'og:image': image,
-      'og:locale': 'en_US',
-      'og:title': title,
-      'og:description': description,
-      'twitter:card': 'summary',
-      'twitter:site': '@nthtran',
-      'twitter:creator': '@nthtran',
-      'twitter:title': title,
-      'twitter:description': description,
-      'twitter:image': image,
-      'twitter:image:width': '200',
-      'twitter:image:height': '200',
-    },
-  },
-};
-
 class App extends React.Component {
   render() {
     return (
       <div>
-        <DocumentMeta {...meta}/>
+        <Helmet
+          title={title}
+          meta={[
+            { name: 'description', 'content': description },
+            { property: 'og:site_name', content: title },
+            { property: 'og:image', content: image },
+            { property: 'og:locale', content: 'en_US' },
+            { property: 'og:title', content: title },
+            { property: 'og:description', content: description },
+            { property: 'twitter:card', content: 'summary' },
+            { property: 'twitter:site', content: '@nthtran' },
+            { property: 'twitter:creator', content: '@nthtran' },
+            { property: 'twitter:title', content: title },
+            { property: 'twitter:description', content: description },
+            { property: 'twitter:image', content: image },
+            { property: 'twitter:image:width', content: '200' },
+            { property: 'twitter:image:height', content: '200' },
+          ]}
+        />
         {this.props.children}
       </div>
     );

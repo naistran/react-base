@@ -1,6 +1,7 @@
 import './css/index.css';
 
 import React from 'react';
+import { render } from 'react-dom';
 import { RoutingContext, match } from 'react-router';
 import { Provider } from 'react-redux';
 import createHistory from 'history/lib/createBrowserHistory';
@@ -14,9 +15,9 @@ const history = createHistory();
 
 history.listen(location => {
   match({ routes, history, location }, (err, redirectLocation, renderProps) => {
-    React.render(
+    render(
       <Provider store={store}>
-        {() => <RoutingContext {...renderProps}/>}
+        <RoutingContext {...renderProps}/>
       </Provider>,
       root
     );

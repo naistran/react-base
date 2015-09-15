@@ -1,7 +1,8 @@
 import React from 'react';
+import { renderToString } from 'react-dom/server';
 import { RoutingContext, match } from 'react-router';
 import { Provider } from 'react-redux';
-import DocumentMeta from 'react-document-meta';
+import Helmet from 'react-helmet';
 import createLocation from 'history/lib/createLocation';
 import serialize from 'serialize-javascript';
 import createStore from '../shared/createStore';
@@ -12,12 +13,14 @@ const manifest = __DEV__ ? {
   'main.css': 'index.css',
 } : require('../assets/build/manifest');
 
-function renderHTML(app, meta, initialState) {
+function renderHTML(app, head, initialState) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charSet="UTF-8">
-  ${meta}
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>${head.title}</title>
+  ${head.meta}
   <link href="/build/${manifest['main.css']}" media="screen, projection" rel="stylesheet" type="text/css">
 </head>
 <body>
@@ -40,15 +43,15 @@ function* render() {
       return this.redirect(pathname + search);
     }
 
-    const app = React.renderToString(
+    const app = renderToString(
       <Provider store={store}>
-        {() => <RoutingContext {...renderProps}/>}
+        <RoutingContext {...renderProps}/>
       </Provider>
     );
-    const meta = DocumentMeta.renderAsHTML();
+    const head = Helmet.rewind();
     const initialState = serialize(store.getState());
 
-    this.body = renderHTML(app, meta, initialState);
+    this.body = renderHTML(app, head, initialState);
   });
 }
 
