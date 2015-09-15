@@ -71,16 +71,15 @@ const common = {
 
   postcss: function postcss() {
     return [
-      require('cssnext')({
-        import: {
-          path: [
-            SRC_PATH,
-          ],
-          onImport: function onImport(files) {
-            files.forEach(this.addDependency);
-          }.bind(this),
-        },
+      require('postcss-import')({
+        path: [
+          SRC_PATH,
+        ],
+        onImport: function onImport(files) {
+          files.forEach(this.addDependency);
+        }.bind(this),
       }),
+      require('postcss-cssnext'),
     ];
   },
 
