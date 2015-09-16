@@ -22,7 +22,7 @@ const GLOBALS = {
 const ROOT_PATH = __dirname;
 const BUILD_DIR = 'build';
 const SRC_PATH = path.resolve(ROOT_PATH, 'src');
-const GLOBAL_CSS_PATH = path.resolve(SRC_PATH, 'client', 'css');
+const GLOBAL_CSS_PATH = path.resolve(SRC_PATH, 'client');
 const SHARED_PATH = path.resolve(SRC_PATH, 'shared');
 const OUTPUT_PATH = path.resolve(SRC_PATH, 'assets', BUILD_DIR);
 const SHARED_OUTPUT_PATH = path.resolve(SHARED_PATH, BUILD_DIR);
@@ -82,14 +82,6 @@ const common = {
       require('postcss-cssnext'),
     ];
   },
-
-  // cssnext: {
-  //   import: {
-  //     path: [
-  //       SRC_PATH,
-  //     ],
-  //   },
-  // },
 };
 
 const clientConfig = merge({}, common, {
