@@ -32,9 +32,19 @@ const NODE_MODULES_PATH = path.resolve(ROOT_PATH, 'node_modules');
  * Loaders.
  */
 
-// don't want to use bluebirdCoroutines on the client (too big)
-const babel = 'babel?blacklist=bluebirdCoroutines';
-const js = [babel];
+const js = 'babel';
+const jsQuery = {
+  plugins: ['react-transform'],
+  extra: {
+    'react-transform': {
+      transforms: [{
+        transform: 'react-transform-hmr',
+        imports: ['react'],
+        locals: ['module'],
+      }],
+    },
+  },
+};
 const cssModule = `modules&importLoaders=1&localIdentName=[local]__[hash:base64:5]&`;
 const cssLoaders = `${DEBUG ? 'sourceMap' : 'minimize'}!postcss`;
 function makeCssLoaders(css) {
@@ -104,7 +114,7 @@ const clientConfig = merge({}, common, {
 
   module: {
     loaders: common.module.loaders.concat([
-      { test: /\.js$/, loaders: DEBUG ? ['react-hot'].concat(js) : js, exclude: NODE_MODULES_PATH },
+      { test: /\.js$/, loader: js, query: DEBUG ? jsQuery : undefined, exclude: NODE_MODULES_PATH },
       { test: /\.css$/, loader: globalCss, include: [GLOBAL_CSS_PATH] },
       { test: /\.css$/, loader: localCss, exclude: [GLOBAL_CSS_PATH] },
     ]),
@@ -167,7 +177,7 @@ const serverConfig = merge({}, common, {
 
   module: {
     loaders: common.module.loaders.concat([
-      { test: /\.js$/, loaders: js, exclude: NODE_MODULES_PATH },
+      { test: /\.js$/, loader: js, exclude: NODE_MODULES_PATH },
       { test: /\.css$/, loader: serverCss },
     ]),
   },
